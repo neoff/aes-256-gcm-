@@ -1,0 +1,5 @@
+app:
+  aes-gcm:
+    enabled: ${AES_GCM_ENABLED:true}
+    secret: ${AES_GSM_SECRET:rBm/L0MsvQqX2adVQLU072edfzkyCCH0pPTtt+kIL0s=} #openssl rand -base64 32
+    version: ${AES_GSM_VERSION:1}
