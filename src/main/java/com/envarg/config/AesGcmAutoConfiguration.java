@@ -5,15 +5,15 @@ import java.util.Base64;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import com.envarg.config.properties.AesGcmProperties;
 import com.envarg.service.AesGcmService;
 
-@AutoConfiguration
+@Configuration
 @ConditionalOnProperty(prefix = "app.aes-gcm", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(AesGcmProperties.class)
 @RequiredArgsConstructor

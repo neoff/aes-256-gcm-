@@ -4,9 +4,28 @@
 
     <groupId>com.envarg</groupId>
     <artifactId>aes-256-gcm</artifactId>
-    <version>2.0.0</version>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
     <name>AES-256-GCM Encryption Library</name>
     <description>Spring Boot library providing AES-256-GCM authenticated encryption</description>
+    <url>https://github.com/neoff/aes-256-gcm-</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>neoff</id>
+            <name>neoff</name>
+            <email>en.varg@gmail.com</email>
+            <url>https://github.com/neoff</url>
+        </developer>
+    </developers>
 
     <scm>
         <connection>scm:git:git@github.com:neoff/aes-256-gcm-.git</connection>
@@ -18,7 +37,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <java.version>17</java.version>
+        <java.version>11</java.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
 
@@ -26,7 +45,7 @@
         <openapi.package>com.envarg</openapi.package>
 
         <!-- Libs -->
-        <spring-boot-dependencies.version>3.5.7</spring-boot-dependencies.version>
+        <spring-boot-dependencies.version>2.4.13</spring-boot-dependencies.version>
         <mockwebserver.version>4.0.1</mockwebserver.version>
         <lombok.version>1.18.42</lombok.version>
 
@@ -43,9 +62,13 @@
         <maven-scm-plugin.version>2.2.1</maven-scm-plugin.version>
         <spotbugs-maven-plugin.version>4.9.0.0</spotbugs-maven-plugin.version>
         <maven-pmd-plugin.version>3.26.0</maven-pmd-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
+        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+        <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
 
         <!-- Plugin's helper libs -->
-        <checkstyle.version>12.1.2</checkstyle.version>
+        <checkstyle.version>9.3</checkstyle.version>
     </properties>
 
     <dependencyManagement>
@@ -273,10 +296,8 @@
                 <configuration>
                     <argLine>
                         @{argLine} -Dfile.encoding=UTF-8
-                        -XX:+EnableDynamicAgentLoading
                         --add-opens java.base/jdk.internal.misc=ALL-UNNAMED
                         --add-opens java.base/java.lang=ALL-UNNAMED
-                        --enable-native-access=ALL-UNNAMED
                         -Dio.netty.tryReflectionSetAccessible=true
                         -Djava.net.preferIPv4Stack=true
                     </argLine>
@@ -387,35 +408,77 @@
         </plugins>
     </reporting>
 
-    <repositories>
-        <repository>
-            <id>nexus-maven</id>
-            <url>${env.NEXUS_PUBLIC_REPO}</url>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>nexus-maven</id>
-            <url>${env.NEXUS_PUBLIC_REPO}</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <distributionManagement>
-        <repository>
-            <id>nexus-maven</id>
-            <url>${env.NEXUS_RELEASE_REPO}</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus-maven</id>
-            <url>${env.NEXUS_SNAPSHOT_REPO}</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-
-    <!-- Founding organization. -->
-    <organization>
-        <name>Envarg</name>
-        <url>https://github.com/neoff</url>
-    </organization>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Sources JAR -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Javadoc JAR -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <doclint>none</doclint>
+                            <failOnError>false</failOnError>
+                        </configuration>
+                    </plugin>
+                    <!-- GPG Signing -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Central Publishing -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
